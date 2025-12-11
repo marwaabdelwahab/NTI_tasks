@@ -1,0 +1,107 @@
+import 'dart:ffi';
+import 'dart:io';
+
+void main() {
+  Theater theater = Theater();
+  while (true) {
+    print("Welcome To Our Theater");
+    print(
+      "Please press 1 to book new seat \nPlease press 2 to show the theater seats \nPlease press 3 to show users data \nPlease press 4 to exit",
+    );
+
+    int choice = handleInput(
+      prompt: "Enter the choice number(1-4)",
+      casting: (String input) {
+        int value = int.tryParse(input) ?? 0;
+        return (value >= 1 && value <= 4) ? value : null;
+      },
+    );
+
+    switch (choice) {
+      case 1:
+        theater.bookSeat();
+      case 2:
+        theater.showSeats();
+      case 3:
+        theater.showBooking();
+      case 4:
+        print("see you back");
+      default:
+        print("invalid choice");
+    }
+  }
+}
+
+class User {
+  String? name;
+  int? phoneNumber;
+
+  User(this.name, this.phoneNumber);
+}
+
+class Theater {
+  List<List<dynamic>> seat = List.generate(
+    5,
+    (int index) => List.generate(5, (int index) => 'E'),
+  );
+  Map<String, User> booking = {};
+
+  void bookSeat() {
+    print('Enter row(1-5)');
+    int row = int.parse(stdin.readLineSync() ?? '');
+    print('Enter column(1-5)');
+    int col = int.parse(stdin.readLineSync() ?? '');
+
+    if (seat[row - 1][col - 1] == 'B') {
+      print('Seat already booked');
+      return;
+    }
+    print('Enter your Name:');
+    String name = stdin.readLineSync() ?? '';
+    print('Enter your Phone Number:');
+    int phoneNumber = int.parse(stdin.readLineSync() ?? '');
+    seat[row - 1][col - 1] = 'B';
+    booking['seat $row$col '] = User(name, phoneNumber);
+    print('Seat booked sucessfully');
+  }
+
+  void showSeats() {
+    print('Theater Seats');
+    for (var element in seat) {
+      print(element);
+    }
+  }
+
+  void showBooking() {
+    if (booking.isEmpty) {
+      print('No Seat Booking yet');
+    } else {
+      print('User Booking Details:');
+      booking.forEach((seat, user) {
+        print('$seat: ${user.name} - ${user.phoneNumber}');
+      });
+    }
+  }
+}
+
+dynamic handleInput({
+  dynamic Function(String)? casting,
+  String prompt = "Enter value",
+}) {
+  print(prompt);
+
+  while (true) {
+    String input = stdin.readLineSync() ?? '';
+    if (input.isEmpty) {
+      print('Invalid input. Please try again.');
+    } else {
+      var castedValue = casting == null ? input : casting(input);
+      if (castedValue == null) {
+        print('Invalid input. Please try again.');
+      } else {
+        return castedValue;
+      }
+    }
+  }
+}
+
