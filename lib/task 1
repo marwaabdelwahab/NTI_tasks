@@ -1,0 +1,48 @@
+import 'dart:io';
+
+void main() {
+  print('Welcome to Simple ATM');
+  int balance = 1000;
+  print('Your starting balance is 1000');
+
+  print(
+    'Choose an option: \n 1. Check Balance \n 2. Withdraw \n 3. Deposit \n 4. Exit',
+  );
+  print("Enter your choice: ");
+
+  //int withDraw = int.parse(stdin.readLineSync() ?? '');
+  // int deposit = int.parse(stdin.readLineSync() ?? '');
+
+  int? choice = int.parse(stdin.readLineSync() ?? '');
+
+  switch (choice) {
+    case 1:
+      print("Your current balance is $balance");
+
+    case 2:
+      print('Enter amount to withdraw:');
+      int withDraw = int.parse(stdin.readLineSync() ?? '');
+      if (withDraw > balance) {
+        print('Insufficient balance! \n your current balance is $balance');
+      } else {
+        balance = balance - withDraw;
+        print('successful withdraw \n your current balance is $balance');
+      }
+
+    case 3:
+      print('Enter amount to deposit:');
+      int deposit = int.parse(stdin.readLineSync() ?? '');
+      if (deposit <= 0) {
+        print('Invalid amount');
+      } else {
+        balance = balance + deposit;
+        print('successful deposit \n your current balance is $balance');
+      }
+
+    case 4:
+      print('Thank you for using the ATM!');
+
+    default:
+      print("Invalid choice");
+  }
+}
