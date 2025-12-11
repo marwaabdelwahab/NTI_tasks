@@ -1,0 +1,169 @@
+import 'dart:io';
+
+void main() {
+  List<Map<String, dynamic>> product = [];
+  Map<String, Map<String, int>> invoices = {};
+  int invoiceNumber = 0;
+
+  while (true) {
+    print("Welcome to Smart Grocery System");
+    print(
+      "Press 1 to add new product \n Press 2 to show all products \n Press 3 to update product quantity \nPress 4 to buy products \n Press 5 to show all invoices \nPress 6 to exit",
+    );
+
+    int choice = handleInput(
+      prompt: "Enter the choice number(1-6)",
+      casting: (String input) {
+        int value = int.tryParse(input) ?? 0;
+        return (value >= 1 && value <= 6) ? value : null;
+      },
+    );
+    switch (choice) {
+      case 1:
+        addProduct(product);
+      case 2:
+        showProducts(product);
+      case 3:
+        updateQuantity(product);
+      case 4:
+        buyProduct(product, invoices, invoiceNumber);
+        invoiceNumber++;
+      case 5:
+        showInvoice(invoices);
+      case 6:
+        print("Thank you for shopping with us!");
+      default:
+        print("invalid choice");
+    }
+  }
+}
+
+void addProduct(List<Map<String, dynamic>> product) {
+  String name = handleInput(prompt: "Enter product name");
+
+  double price = handleInput(
+    prompt: "Enter price",
+    casting: (String input) {
+      double value = double.tryParse(input) ?? 0;
+      return (value > 0) ? value : null;
+    },
+  );
+
+  int quantity = handleInput(
+    prompt: "Enter quantity",
+    casting: (String input) {
+      int value = int.tryParse(input) ?? 0;
+      return (value > 0) ? value : null;
+    },
+  );
+
+  product.add({'name': name, "price": price, "quantity": quantity});
+  print("Product added successfully!");
+}
+
+void showProducts(List<Map<String, dynamic>> product) {
+  print("Product List:");
+  product.forEach((item) {
+    print(item);
+  });
+}
+
+void updateQuantity(List<Map<String, dynamic>> product) {
+  String name = handleInput(prompt: "enter product name:");
+  int index = product.indexWhere((product) => product['name'] == name);
+  if (index != -1) {
+    int quantity = handleInput(
+      prompt: "enter new quantity:",
+      casting: (String input) {
+        double value = double.tryParse(input) ?? 0;
+        return (value > 0) ? value : null;
+      },
+    );
+    product[index]['quantity'] = quantity;
+    print("Product quantity updated successfully!");
+  } else {
+    print("Product not found!");
+  }
+}
+
+void buyProduct(
+  List<Map<String, dynamic>> product,
+  Map<String, Map<String, dynamic>> invoices,
+  int invoiceNumber,
+) {
+  List<Map<String, int>> productItems = [];
+  int finalTotal = 0;
+
+  String customerName = handleInput(prompt: "Enter your name");
+
+  String productName = handleInput(prompt: "Enter product name");
+  int index = product.indexWhere((product) => product['name'] == productName);
+
+  if (index != -1) {
+    int quantity = handleInput(
+      prompt: "Enter quantity",
+      casting: (String input) {
+        double value = double.tryParse(input) ?? 0;
+        return (value > 0) ? value : null;
+      },
+    );
+    if (quantity <= product[index]['quantity']) {
+      int total = product[index]['price'] * quantity;
+      finalTotal += total;
+      product[index]["quantity"] -= quantity;
+      productItems.add({
+        "name": product[index]['name'],
+        "qty": product[index]['quantity'],
+        'price': product[index]['price'],
+        'total': total,
+      });
+      print('Added $quantity x ${product[index]['name']} to your cart');
+    } else {
+      print("quantity is not enough in warehouse");
+    }
+  } else {
+    print("product not found");
+  }
+  invoices['Invoice $invoiceNumber'] = {
+    'customerName': customerName,
+    'items': productItems,
+    'finalTotal': finalTotal,
+  };
+
+  print("total is:$finalTotal");
+  print("Invoice saved successfully!");
+}
+
+void showInvoice(Map<String, Map<String, dynamic>> invoices) {
+  print("All invoices:");
+  invoices.forEach((invoiceNumber, invoice) {
+    print("$invoiceNumber:");
+    print("Customer: ${invoice['customerName']}");
+    print("Items:");
+    invoice['items'].forEach((item) {
+      print("- ${item['name']} x${item['qty']} = ${item['total']}");
+    });
+    print("Total = ${invoice['finalTotal']}");
+  });
+}
+
+dynamic handleInput({
+  dynamic Function(String)? casting,
+  String prompt = "Enter value",
+}) {
+  print(prompt);
+
+  while (true) {
+    String input = stdin.readLineSync() ?? '';
+    if (input.isEmpty) {
+      print('Invalid input. Please try again.');
+    } else {
+      var castedValue = casting == null ? input : casting(input);
+      if (castedValue == null) {
+        print('Invalid input. Please try again.');
+      } else {
+        return castedValue;
+      }
+    }
+  }
+}
